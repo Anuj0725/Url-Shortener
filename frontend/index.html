@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Shorten your URLs instantly with custom aliases, analytics, and expiry controls.">
+    <title>Sniplink — URL Shortener</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <!-- ===== NAVBAR ===== -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <a href="#" class="nav-logo">
+                <span class="logo-icon">⚡</span>
+                <span class="logo-text">Sniplink</span>
+            </a>
+
+            <div class="nav-links" id="nav-links">
+                <a href="#home" class="nav-link active">Home</a>
+                <a href="#dashboard" class="nav-link">Dashboard</a>
+                <a href="#stats" class="nav-link">Stats</a>
+            </div>
+
+            <div class="nav-actions">
+                <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
+                    <span class="theme-icon sun">☀️</span>
+                    <span class="theme-icon moon">🌙</span>
+                </button>
+
+                <!-- Logged out state -->
+                <div class="auth-buttons" id="auth-buttons">
+                    <button class="btn btn-ghost" id="login-btn">Log in</button>
+                    <button class="btn btn-primary" id="register-btn">Sign up</button>
+                </div>
+
+                <!-- Logged in state -->
+                <div class="user-info hidden" id="user-info">
+                    <span class="user-avatar" id="user-avatar"></span>
+                    <span class="user-email" id="user-email"></span>
+                    <button class="btn btn-ghost btn-sm" id="logout-btn">Logout</button>
+                </div>
+
+                <!-- Mobile hamburger -->
+                <button class="hamburger" id="hamburger" aria-label="Menu">
+                    <span class="hamburger-line"></span>
+                    <span class="hamburger-line"></span>
+                    <span class="hamburger-line"></span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ===== HERO / HOME ===== -->
+    <main>
+        <section class="hero" id="home">
+            <div class="hero-glow"></div>
+            <div class="container">
+                <h1 class="hero-title">
+                    Shorten. Share.<br>
+                    <span class="gradient-text">Track everything.</span>
+                </h1>
+                <p class="hero-subtitle">
+                    Transform long URLs into clean, trackable short links — with custom aliases, expiry control, and real-time analytics.
+                </p>
+
+                <!-- URL Shortener Form -->
+                <div class="glass-card shorten-card" id="shorten-card">
+                    <form id="shorten-form" autocomplete="off">
+                        <div class="form-row">
+                            <div class="input-wrapper">
+                                <span class="input-icon">🔗</span>
+                                <input
+                                    type="url"
+                                    class="input input-with-icon"
+                                    id="long-url-input"
+                                    placeholder="Paste your long URL here..."
+                                    required
+                                >
+                            </div>
+                            <button type="submit" class="btn btn-primary btn-lg" id="shorten-btn">
+                                <span class="btn-text">Shorten</span>
+                                <span class="btn-loader hidden" id="shorten-loader"></span>
+                            </button>
+                        </div>
+
+                        <!-- Expiry toggle -->
+                        <div class="expiry-row">
+                            <label class="toggle-label">
+                                <input type="checkbox" id="expiry-toggle" class="toggle-checkbox">
+                                <span class="toggle-switch"></span>
+                                <span class="toggle-text">Custom expiry</span>
+                            </label>
+                            <div class="expiry-input-wrap hidden" id="expiry-wrap">
+                                <input
+                                    type="number"
+                                    class="input input-sm"
+                                    id="expiry-input"
+                                    min="1"
+                                    max="365"
+                                    value="30"
+                                    placeholder="Days"
+                                >
+                                <span class="expiry-hint">days (1–365)</span>
+                            </div>
+                        </div>
+
+                        <!-- Custom alias toggle -->
+                        <div class="alias-row">
+                            <label class="toggle-label">
+                                <input type="checkbox" id="alias-toggle" class="toggle-checkbox">
+                                <span class="toggle-switch"></span>
+                                <span class="toggle-text">Custom alias</span>
+                            </label>
+                            <div class="alias-input-wrap hidden" id="alias-wrap">
+                                <div class="alias-preview">
+                                    <span class="alias-prefix" id="alias-prefix">localhost:8080/</span>
+                                    <input
+                                        type="text"
+                                        class="input input-alias"
+                                        id="alias-input"
+                                        placeholder="my-link"
+                                        minlength="3"
+                                        maxlength="50"
+                                    >
+                                </div>
+                                <span class="alias-hint">3–50 chars, letters, numbers, hyphens, underscores</span>
+                            </div>
+                        </div>
+                    </form>
+
+                    <!-- Result -->
+                    <div class="result-box hidden" id="result-box">
+                        <div class="result-header">
+                            <span class="result-label">✅ Your short link</span>
+                        </div>
+                        <div class="result-link-row">
+                            <a href="#" target="_blank" class="result-link" id="result-link"></a>
+                            <button type="button" class="btn btn-ghost btn-sm copy-btn" id="copy-btn">
+                                <span id="copy-text">Copy</span>
+                            </button>
+                        </div>
+                        <p class="result-original" id="result-original"></p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== PLATFORM STATS (Step 8) ===== -->
+        <section class="section" id="stats">
+            <div class="container">
+                <p class="placeholder-text">📊 Platform stats coming in Step 8</p>
+            </div>
+        </section>
+
+        <!-- ===== DASHBOARD ===== -->
+        <section class="section" id="dashboard">
+            <div class="container">
+                <div class="section-header">
+                    <h2 class="section-title">📋 My Links</h2>
+                    <p class="section-subtitle">Manage and track all your shortened URLs</p>
+                </div>
+
+                <!-- Logged out state -->
+                <div class="glass-card dashboard-empty" id="dashboard-empty">
+                    <div class="empty-icon">🔒</div>
+                    <p class="empty-title">Sign in to view your links</p>
+                    <p class="empty-subtitle">Create an account to track your shortened URLs and view analytics</p>
+                    <button class="btn btn-primary" id="dashboard-login-btn">Log in / Sign up</button>
+                </div>
+
+                <!-- Links grid (populated by JS) -->
+                <div class="links-grid hidden" id="links-grid"></div>
+
+                <!-- Loading state -->
+                <div class="dashboard-loader hidden" id="dashboard-loader">
+                    <span class="btn-loader"></span>
+                    <span>Loading your links...</span>
+                </div>
+
+                <!-- No links state -->
+                <div class="glass-card dashboard-empty hidden" id="no-links">
+                    <div class="empty-icon">🔗</div>
+                    <p class="empty-title">No links yet</p>
+                    <p class="empty-subtitle">Shorten your first URL above and it will appear here</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- ===== AUTH MODAL ===== -->
+    <div class="modal-overlay hidden" id="auth-overlay">
+        <div class="glass-card modal" id="auth-modal">
+            <button class="modal-close" id="modal-close" aria-label="Close">&times;</button>
+
+            <!-- Tabs -->
+            <div class="auth-tabs">
+                <button class="auth-tab active" data-tab="login">Log in</button>
+                <button class="auth-tab" data-tab="register">Sign up</button>
+            </div>
+
+            <!-- Login Form -->
+            <form class="auth-form" id="login-form">
+                <div class="input-group">
+                    <label class="input-label" for="login-email">Email</label>
+                    <input type="email" class="input" id="login-email" placeholder="you@example.com" required>
+                </div>
+                <div class="input-group">
+                    <label class="input-label" for="login-password">Password</label>
+                    <input type="password" class="input" id="login-password" placeholder="••••••••" required>
+                </div>
+                <button type="submit" class="btn btn-primary btn-lg btn-full" id="login-submit">
+                    <span class="btn-text">Log in</span>
+                    <span class="btn-loader hidden" id="login-loader"></span>
+                </button>
+                <p class="auth-switch">Don't have an account? <a href="#" id="switch-to-register">Sign up</a></p>
+            </form>
+
+            <!-- Register Form -->
+            <form class="auth-form hidden" id="register-form">
+                <div class="input-group">
+                    <label class="input-label" for="register-email">Email</label>
+                    <input type="email" class="input" id="register-email" placeholder="you@example.com" required>
+                </div>
+                <div class="input-group">
+                    <label class="input-label" for="register-password">Password</label>
+                    <input type="password" class="input" id="register-password" placeholder="Minimum 6 characters" required minlength="6">
+                </div>
+                <div class="input-group">
+                    <label class="input-label" for="register-confirm">Confirm password</label>
+                    <input type="password" class="input" id="register-confirm" placeholder="••••••••" required minlength="6">
+                </div>
+                <button type="submit" class="btn btn-primary btn-lg btn-full" id="register-submit">
+                    <span class="btn-text">Create account</span>
+                    <span class="btn-loader hidden" id="register-loader"></span>
+                </button>
+                <p class="auth-switch">Already have an account? <a href="#" id="switch-to-login">Log in</a></p>
+            </form>
+        </div>
+    </div>
+
+    <!-- ===== TOAST CONTAINER ===== -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <!-- Scripts -->
+    <script src="theme.js"></script>
+    <script src="navbar.js"></script>
+    <script src="auth.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
