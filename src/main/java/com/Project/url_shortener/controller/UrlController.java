@@ -27,7 +27,7 @@ public class UrlController {
     @PostMapping("/api/shorten")
     public ResponseEntity<?> shortenUrl(@RequestBody UrlRequest req){
         Url url=service.shortenUrl(req.longUrl(),req.expiryDays());
-        String shortenedLink=baseUrl + "/" + url.getShortCode();
+        String shortenedLink=baseUrl + "/redirect/" + url.getShortCode();
         return new ResponseEntity<>(new UrlResponse(url.getLongUrl(),shortenedLink), HttpStatus.CREATED);
     }
 
@@ -46,12 +46,12 @@ public class UrlController {
             service.incrementClicksCountPerUrl(url.getShortCode());
             String longUrl=url.getLongUrl();
 
-            return new ResponseEntity<>(new RedirectResponse("You are being redirected to an external site",longUrl),HttpStatus.OK);
+//            return new ResponseEntity<>(new RedirectResponse("You are being redirected to an external site",longUrl),HttpStatus.OK);
 
-//            HttpHeaders headers = new HttpHeaders();
-//            headers.setLocation(URI.create(longUrl));
-//
-//            return new ResponseEntity<>(headers,HttpStatus.FOUND);
+            HttpHeaders headers = new HttpHeaders();
+            headers.setLocation(URI.create(longUrl));
+
+            return new ResponseEntity<>(headers,HttpStatus.FOUND);
         }
 
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -78,7 +78,7 @@ public class UrlController {
             return new ResponseEntity<>("Alias is already in use", HttpStatus.CONFLICT);
         }
 
-        String shortenedLink=baseUrl + "/" + url.get().getShortCode();
+        String shortenedLink=baseUrl + "/redirect/" + url.get().getShortCode();
         return new ResponseEntity<>(new UrlResponse(url.get().getLongUrl(),shortenedLink),HttpStatus.CREATED);
     }
 
@@ -110,8 +110,8 @@ public class UrlController {
         return new ResponseEntity<>(myLinks,HttpStatus.OK);
     }
 
-    @GetMapping("/{shortCode}")
-    public ResponseEntity<?> redirectRoot(@PathVariable String shortCode){
-        return redirect(shortCode);
-    }
+//    @GetMapping("/{shortCode}")
+//    public ResponseEntity<?> redirectRoot(@PathVariable String shortCode){
+//        return redirect(shortCode);
+//    }
 }

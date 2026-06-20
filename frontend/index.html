@@ -6,6 +6,9 @@
     <meta name="description" content="Shorten your URLs instantly with custom aliases, analytics, and expiry controls.">
     <title>Sniplink — URL Shortener</title>
 
+    <!-- Favicon -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
+
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -19,15 +22,20 @@
     <!-- ===== NAVBAR ===== -->
     <nav class="navbar" id="navbar">
         <div class="nav-container">
-            <a href="#" class="nav-logo">
+            <a href="#home" class="nav-logo">
                 <span class="logo-icon">⚡</span>
                 <span class="logo-text">Sniplink</span>
             </a>
 
             <div class="nav-links" id="nav-links">
                 <a href="#home" class="nav-link active">Home</a>
-                <a href="#dashboard" class="nav-link">Dashboard</a>
                 <a href="#stats" class="nav-link">Stats</a>
+                <a href="#dashboard" class="nav-link">Dashboard</a>
+                <!-- Mobile-only auth links -->
+                <div class="mobile-auth-links">
+                    <a href="#" class="nav-link" id="mobile-login-link">Log in</a>
+                    <a href="#" class="nav-link" id="mobile-register-link">Sign up</a>
+                </div>
             </div>
 
             <div class="nav-actions">
@@ -64,77 +72,51 @@
         <section class="hero" id="home">
             <div class="hero-glow"></div>
             <div class="container">
-                <h1 class="hero-title">
+                <h1 class="hero-title fade-up">
                     Shorten. Share.<br>
                     <span class="gradient-text">Track everything.</span>
                 </h1>
-                <p class="hero-subtitle">
+                <p class="hero-subtitle fade-up delay-1">
                     Transform long URLs into clean, trackable short links — with custom aliases, expiry control, and real-time analytics.
                 </p>
 
                 <!-- URL Shortener Form -->
-                <div class="glass-card shorten-card" id="shorten-card">
-                    <form id="shorten-form" autocomplete="off">
-                        <div class="form-row">
-                            <div class="input-wrapper">
-                                <span class="input-icon">🔗</span>
-                                <input
-                                    type="url"
-                                    class="input input-with-icon"
-                                    id="long-url-input"
-                                    placeholder="Paste your long URL here..."
-                                    required
-                                >
+                <div class="glass-card shorten-card fade-up delay-2" id="shorten-card">
+                    <form id="shorten-form" autocomplete="off" class="modern-form">
+                        <!-- Main URL Input -->
+                        <div class="modern-input-group">
+                            <div class="modern-icon-wrap">
+                                <svg class="modern-icon-svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
                             </div>
-                            <button type="submit" class="btn btn-primary btn-lg" id="shorten-btn">
-                                <span class="btn-text">Shorten</span>
-                                <span class="btn-loader hidden" id="shorten-loader"></span>
-                            </button>
+                            <input type="url" class="modern-input" id="long-url-input" placeholder="Paste your long URL here..." required>
                         </div>
 
-                        <!-- Expiry toggle -->
-                        <div class="expiry-row">
-                            <label class="toggle-label">
-                                <input type="checkbox" id="expiry-toggle" class="toggle-checkbox">
-                                <span class="toggle-switch"></span>
-                                <span class="toggle-text">Custom expiry</span>
-                            </label>
-                            <div class="expiry-input-wrap hidden" id="expiry-wrap">
-                                <input
-                                    type="number"
-                                    class="input input-sm"
-                                    id="expiry-input"
-                                    min="1"
-                                    max="365"
-                                    value="30"
-                                    placeholder="Days"
-                                >
-                                <span class="expiry-hint">days (1–365)</span>
-                            </div>
-                        </div>
-
-                        <!-- Custom alias toggle -->
-                        <div class="alias-row">
-                            <label class="toggle-label">
-                                <input type="checkbox" id="alias-toggle" class="toggle-checkbox">
-                                <span class="toggle-switch"></span>
-                                <span class="toggle-text">Custom alias</span>
-                            </label>
-                            <div class="alias-input-wrap hidden" id="alias-wrap">
-                                <div class="alias-preview">
-                                    <span class="alias-prefix" id="alias-prefix">localhost:8080/</span>
-                                    <input
-                                        type="text"
-                                        class="input input-alias"
-                                        id="alias-input"
-                                        placeholder="my-link"
-                                        minlength="3"
-                                        maxlength="50"
-                                    >
+                        <!-- Options Row -->
+                        <div class="modern-options-row">
+                            <!-- Custom Alias -->
+                            <div class="modern-input-group">
+                                <div class="modern-icon-wrap">
+                                    <svg class="modern-icon-svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
                                 </div>
-                                <span class="alias-hint">3–50 chars, letters, numbers, hyphens, underscores</span>
+                                <input type="text" class="modern-input has-badge" id="alias-input" placeholder="Custom alias" minlength="3" maxlength="50">
+                                <span class="modern-badge">Optional</span>
+                            </div>
+
+                            <!-- Expiry -->
+                            <div class="modern-input-group">
+                                <div class="modern-icon-wrap">
+                                    <svg class="modern-icon-svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                                </div>
+                                <input type="number" class="modern-input has-badge" id="expiry-input" placeholder="Expiry in days" min="1" max="365">
+                                <span class="modern-badge">Optional</span>
                             </div>
                         </div>
+
+                        <!-- Submit Button -->
+                        <button type="submit" class="btn btn-primary btn-shorten-full" id="shorten-btn">
+                            <span class="btn-text">Shorten URL</span>
+                            <span class="btn-loader hidden" id="shorten-loader"></span>
+                        </button>
                     </form>
 
                     <!-- Result -->
@@ -154,10 +136,30 @@
             </div>
         </section>
 
-        <!-- ===== PLATFORM STATS (Step 8) ===== -->
+        <!-- ===== PLATFORM STATS ===== -->
         <section class="section" id="stats">
             <div class="container">
-                <p class="placeholder-text">📊 Platform stats coming in Step 8</p>
+                <div class="section-header">
+                    <h2 class="section-title">📊 Platform Stats</h2>
+                    <p class="section-subtitle">Real-time usage across the platform</p>
+                </div>
+
+                <div class="platform-stats" id="platform-stats">
+                    <div class="platform-stat-card glass-card">
+                        <div class="platform-stat-icon">🔗</div>
+                        <div class="platform-stat-body">
+                            <span class="platform-stat-value" id="platform-links">—</span>
+                            <span class="platform-stat-label">Links Created</span>
+                        </div>
+                    </div>
+                    <div class="platform-stat-card glass-card">
+                        <div class="platform-stat-icon">👆</div>
+                        <div class="platform-stat-body">
+                            <span class="platform-stat-value" id="platform-clicks">—</span>
+                            <span class="platform-stat-label">Total Clicks</span>
+                        </div>
+                    </div>
+                </div>
             </div>
         </section>
 
@@ -182,7 +184,7 @@
 
                 <!-- Loading state -->
                 <div class="dashboard-loader hidden" id="dashboard-loader">
-                    <span class="btn-loader"></span>
+                    <span class="loader-spinner"></span>
                     <span>Loading your links...</span>
                 </div>
 
@@ -195,6 +197,16 @@
             </div>
         </section>
     </main>
+
+    <!-- ===== FOOTER ===== -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-inner">
+                <span class="footer-logo">⚡ Sniplink</span>
+                <span class="footer-text">Built with ☕ — URL Shortener Project</span>
+            </div>
+        </div>
+    </footer>
 
     <!-- ===== AUTH MODAL ===== -->
     <div class="modal-overlay hidden" id="auth-overlay">
@@ -247,6 +259,52 @@
         </div>
     </div>
 
+    <!-- ===== STATS DETAIL MODAL ===== -->
+    <div class="modal-overlay hidden" id="stats-overlay">
+        <div class="glass-card modal stats-modal" id="stats-modal">
+            <button class="modal-close" id="stats-modal-close" aria-label="Close">&times;</button>
+            <h3 class="stats-modal-title">📊 Link Analytics</h3>
+
+            <!-- Loading -->
+            <div class="stats-loader" id="stats-modal-loader">
+                <span class="loader-spinner"></span>
+                <span>Loading analytics...</span>
+            </div>
+
+            <!-- Content -->
+            <div class="stats-content hidden" id="stats-content">
+                <div class="stats-url-section">
+                    <div class="stats-short-row">
+                        <a href="#" target="_blank" class="stats-short-link" id="stats-short-url"></a>
+                        <button class="link-card-copy" id="stats-copy-btn">Copy</button>
+                    </div>
+                    <p class="stats-long-url" id="stats-long-url"></p>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <span class="stat-label">Total Clicks</span>
+                        <span class="stat-value" id="stat-clicks">0</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-label">Status</span>
+                        <span class="stat-value" id="stat-status">Active</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-label">Expiry</span>
+                        <span class="stat-value" id="stat-expiry">—</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Error -->
+            <div class="stats-error hidden" id="stats-error">
+                <p class="empty-title">Failed to load analytics</p>
+                <p class="empty-subtitle" id="stats-error-msg"></p>
+            </div>
+        </div>
+    </div>
+
     <!-- ===== TOAST CONTAINER ===== -->
     <div class="toast-container" id="toast-container"></div>
 
@@ -255,5 +313,6 @@
     <script src="navbar.js"></script>
     <script src="auth.js"></script>
     <script src="app.js"></script>
+    <script src="dashboard.js"></script>
 </body>
 </html>

@@ -181,7 +181,7 @@ public class UrlService {
         List<Url> urls=urlRepo.findByUser(user);
         List<MyLinks> result=new ArrayList<>();
         for(Url url : urls){
-            MyLinks link=new MyLinks(url.getLongUrl(), baseUrl + "/" + url.getShortCode(),url.getExpiryTime(),url.getClicksCount());
+            MyLinks link=new MyLinks(url.getLongUrl(), baseUrl + "/redirect/" + url.getShortCode(),url.getExpiryTime(),url.getClicksCount());
             result.add(link);
         }
 

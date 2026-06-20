@@ -5,20 +5,19 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.cache.RedisCacheConfiguration;
 import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
-import org.springframework.data.redis.serializer.GenericJacksonJsonRedisSerializer;
+import org.springframework.data.redis.serializer.JdkSerializationRedisSerializer;
 import org.springframework.data.redis.serializer.RedisSerializationContext;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 import java.time.Duration;
 
-//In case we want to see the stored data in Redis in JSON format
 @Configuration
 public class RedisConfig {
 
     @Bean
     public RedisCacheManager cacheManager(RedisConnectionFactory factory) {
 
-        GenericJacksonJsonRedisSerializer serializer = GenericJacksonJsonRedisSerializer.builder().build();
+        JdkSerializationRedisSerializer serializer = new JdkSerializationRedisSerializer();
 
         RedisCacheConfiguration config = RedisCacheConfiguration
                 .defaultCacheConfig()

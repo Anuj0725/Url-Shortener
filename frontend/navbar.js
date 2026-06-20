@@ -31,9 +31,12 @@
         });
 
         links.forEach(link => {
-            link.classList.remove('active');
-            if (link.getAttribute('href') === '#' + current) {
-                link.classList.add('active');
+            const href = link.getAttribute('href');
+            if (href && href.startsWith('#')) {
+                link.classList.remove('active');
+                if (href === '#' + current) {
+                    link.classList.add('active');
+                }
             }
         });
     }
@@ -44,12 +47,21 @@
         navLinks.classList.toggle('open');
     }
 
-    // Close mobile menu when a link is clicked
+    function closeMenu() {
+        hamburger.classList.remove('open');
+        navLinks.classList.remove('open');
+    }
+
+    // Close mobile menu when a nav link is clicked
     links.forEach(link => {
-        link.addEventListener('click', () => {
-            hamburger.classList.remove('open');
-            navLinks.classList.remove('open');
-        });
+        link.addEventListener('click', closeMenu);
+    });
+
+    // Close menu when clicking outside on mobile
+    document.addEventListener('click', (e) => {
+        if (!navbar.contains(e.target) && navLinks.classList.contains('open')) {
+            closeMenu();
+        }
     });
 
     // --- Event listeners ---

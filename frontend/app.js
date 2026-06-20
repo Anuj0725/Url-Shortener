@@ -3,7 +3,13 @@
    Handles /api/shorten and /api/shorten/custom
    ======================================== */
 
-const API_BASE = 'http://localhost:8080';
+/* eslint-env browser */
+/* global Auth, Dashboard, showToast */
+
+// Use relative path if hosted on the same server (Spring Boot), otherwise fallback to localhost:8080
+const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+    ? 'http://localhost:8080' 
+    : '';
 
 (function () {
     const form = document.getElementById('shorten-form');
@@ -11,30 +17,13 @@ const API_BASE = 'http://localhost:8080';
     const shortenBtn = document.getElementById('shorten-btn');
     const btnText = shortenBtn.querySelector('.btn-text');
     const btnLoader = document.getElementById('shorten-loader');
-    const expiryToggle = document.getElementById('expiry-toggle');
-    const expiryWrap = document.getElementById('expiry-wrap');
     const expiryInput = document.getElementById('expiry-input');
-    const aliasToggle = document.getElementById('alias-toggle');
-    const aliasWrap = document.getElementById('alias-wrap');
     const aliasInput = document.getElementById('alias-input');
     const resultBox = document.getElementById('result-box');
     const resultLink = document.getElementById('result-link');
     const resultOriginal = document.getElementById('result-original');
     const copyBtn = document.getElementById('copy-btn');
     const copyText = document.getElementById('copy-text');
-
-    // --- Expiry toggle ---
-    expiryToggle.addEventListener('change', () => {
-        expiryWrap.classList.toggle('hidden', !expiryToggle.checked);
-    });
-
-    // --- Alias toggle ---
-    aliasToggle.addEventListener('change', () => {
-        aliasWrap.classList.toggle('hidden', !aliasToggle.checked);
-        if (aliasToggle.checked) {
-            aliasInput.focus();
-        }
-    });
 
     // --- Form submit ---
     form.addEventListener('submit', async (e) => {
@@ -43,17 +32,12 @@ const API_BASE = 'http://localhost:8080';
         const longUrl = longUrlInput.value.trim();
         if (!longUrl) return;
 
-        // Check if custom alias is enabled
-        const useCustomAlias = aliasToggle.checked;
+        // Check if custom alias is provided
         const customAlias = aliasInput.value.trim();
+        const useCustomAlias = !!customAlias;
 
-        // Validate alias if enabled
+        // Validate alias if provided
         if (useCustomAlias) {
-            if (!customAlias) {
-                showToast('Please enter a custom alias', 'error');
-                aliasInput.focus();
-                return;
-            }
             if (!/^[a-zA-Z0-9_-]{3,50}$/.test(customAlias)) {
                 showToast('Alias: 3–50 chars, letters, numbers, hyphens, underscores only', 'error');
                 aliasInput.focus();
@@ -63,7 +47,7 @@ const API_BASE = 'http://localhost:8080';
 
         // Build expiry
         let expiryDays = null;
-        if (expiryToggle.checked) {
+        if (expiryInput.value.trim() !== '') {
             const days = parseInt(expiryInput.value, 10);
             if (isNaN(days) || days < 1 || days > 365) {
                 showToast('Expiry must be between 1 and 365 days', 'error');
@@ -113,6 +97,8 @@ const API_BASE = 'http://localhost:8080';
             resetCopyBtn();
 
             showToast('URL shortened successfully!', 'success');
+            if (Auth.isLoggedIn() && typeof Dashboard !== 'undefined') Dashboard.refresh();
+            if (typeof refreshPlatformStats === 'function') refreshPlatformStats();
         } catch (err) {
             showToast(err.message || 'Something went wrong', 'error');
         } finally {
@@ -137,7 +123,7 @@ const API_BASE = 'http://localhost:8080';
     // --- Helpers ---
     function setLoading(loading) {
         shortenBtn.disabled = loading;
-        btnText.textContent = loading ? '' : 'Shorten';
+        btnText.textContent = loading ? '' : 'Shorten URL';
         btnLoader.classList.toggle('hidden', !loading);
     }
 
@@ -145,4 +131,56 @@ const API_BASE = 'http://localhost:8080';
         copyText.textContent = 'Copy';
         copyBtn.classList.remove('copied');
     }
+})();
+
+/* ========================================
+   PLATFORM STATS — /api/stats/platform
+   ======================================== */
+
+(function () {
+    const linksEl = document.getElementById('platform-links');
+    const clicksEl = document.getElementById('platform-clicks');
+
+    async function loadPlatformStats() {
+        try {
+            const res = await fetch(`${API_BASE}/api/stats/platform`);
+            if (!res.ok) throw new Error();
+
+            const data = await res.json();
+            const links = data.linksCreated ?? 0;
+            const clicks = data.clickCount ?? 0;
+
+            animateCount(linksEl, links);
+            animateCount(clicksEl, clicks);
+        } catch {
+            linksEl.textContent = '—';
+            clicksEl.textContent = '—';
+        }
+    }
+
+    // Animated count-up
+    function animateCount(el, target) {
+        if (target === 0) { el.textContent = '0'; return; }
+
+        const duration = 1200;
+        const start = performance.now();
+
+        function tick(now) {
+            const elapsed = now - start;
+            const progress = Math.min(elapsed / duration, 1);
+            // Ease-out cubic
+            const eased = 1 - Math.pow(1 - progress, 3);
+            el.textContent = Math.floor(eased * target).toLocaleString();
+            if (progress < 1) requestAnimationFrame(tick);
+            else el.textContent = target.toLocaleString();
+        }
+
+        requestAnimationFrame(tick);
+    }
+
+    // Load on page ready
+    loadPlatformStats();
+
+    // Expose for refresh after shortening
+    window.refreshPlatformStats = loadPlatformStats;
 })();

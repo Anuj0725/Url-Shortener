@@ -3,6 +3,9 @@
    Persists choice to localStorage
    ======================================== */
 
+/* eslint-env browser */
+/* exported showToast */
+
 (function () {
     const STORAGE_KEY = 'sniplink-theme';
     const html = document.documentElement;

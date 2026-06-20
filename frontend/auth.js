@@ -3,6 +3,10 @@
    Calls /api/auth/login & /api/auth/register
    ======================================== */
 
+/* eslint-env browser */
+/* global API_BASE, showToast, Dashboard */
+/* exported Auth */
+
 const Auth = (function () {
     const TOKEN_KEY = 'sniplink-token';
     const EMAIL_KEY = 'sniplink-email';
@@ -53,6 +57,31 @@ const Auth = (function () {
     registerBtn.addEventListener('click', () => openModal('register'));
     switchToRegister.addEventListener('click', (e) => { e.preventDefault(); switchTab('register'); });
     switchToLogin.addEventListener('click', (e) => { e.preventDefault(); switchTab('login'); });
+
+    // Mobile auth links (inside hamburger menu)
+    const mobileLoginLink = document.getElementById('mobile-login-link');
+    const mobileRegisterLink = document.getElementById('mobile-register-link');
+    if (mobileLoginLink) {
+        mobileLoginLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            // Close hamburger menu
+            const hamburger = document.getElementById('hamburger');
+            const navLinksEl = document.getElementById('nav-links');
+            if (hamburger) hamburger.classList.remove('open');
+            if (navLinksEl) navLinksEl.classList.remove('open');
+            openModal('login');
+        });
+    }
+    if (mobileRegisterLink) {
+        mobileRegisterLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            const hamburger = document.getElementById('hamburger');
+            const navLinksEl = document.getElementById('nav-links');
+            if (hamburger) hamburger.classList.remove('open');
+            if (navLinksEl) navLinksEl.classList.remove('open');
+            openModal('register');
+        });
+    }
 
     // --- Tab switching ---
     function switchTab(tab) {
@@ -155,25 +184,30 @@ const Auth = (function () {
         localStorage.setItem(TOKEN_KEY, token);
         localStorage.setItem(EMAIL_KEY, email);
         updateUI(email);
+        if (typeof Dashboard !== 'undefined') Dashboard.refresh();
     }
 
     function clearSession() {
         localStorage.removeItem(TOKEN_KEY);
         localStorage.removeItem(EMAIL_KEY);
         updateUI(null);
+        if (typeof Dashboard !== 'undefined') Dashboard.refresh();
     }
 
     function updateUI(email) {
+        const mobileAuthDiv = document.querySelector('.mobile-auth-links');
         if (email) {
             authButtons.classList.add('hidden');
             userInfo.classList.remove('hidden');
             userEmail.textContent = email;
             userAvatar.textContent = email.charAt(0).toUpperCase();
+            if (mobileAuthDiv) mobileAuthDiv.style.display = 'none';
         } else {
             authButtons.classList.remove('hidden');
             userInfo.classList.add('hidden');
             userEmail.textContent = '';
             userAvatar.textContent = '';
+            if (mobileAuthDiv) mobileAuthDiv.style.display = '';
         }
     }
 
@@ -195,12 +229,31 @@ const Auth = (function () {
     }
 
     function isLoggedIn() {
-        return !!getToken();
+        const token = getToken();
+        if (!token) return false;
+
+        try {
+            // Check expiry by decoding JWT payload
+            const payloadBase64 = token.split('.')[1];
+            // Fix base64url to base64
+            const base64 = payloadBase64.replace(/-/g, '+').replace(/_/g, '/');
+            const payload = JSON.parse(atob(base64));
+            
+            // Check if token is expired (exp is in seconds)
+            if (payload.exp && payload.exp * 1000 < Date.now()) {
+                clearSession();
+                return false;
+            }
+            return true;
+        } catch (e) {
+            clearSession();
+            return false;
+        }
     }
 
     // --- Init: restore session ---
     const savedEmail = localStorage.getItem(EMAIL_KEY);
-    if (savedEmail && getToken()) {
+    if (savedEmail && isLoggedIn()) {
         updateUI(savedEmail);
     }
 
