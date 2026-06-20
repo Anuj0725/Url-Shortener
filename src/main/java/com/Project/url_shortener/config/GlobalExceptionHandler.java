@@ -36,7 +36,6 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<?> handleEveryOtherException(Exception e){
-        e.printStackTrace();
         return new ResponseEntity<>("Something went wrong",HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }
