@@ -167,9 +167,7 @@ public class UrlService {
     @Scheduled(cron = "0 0 2 * * *")
     @CacheEvict(value = "urls", allEntries = true)
     public void cleanUp(){
-//        log.info("Running expired URL cleanup job at {}", LocalDateTime.now());
         urlRepo.deleteExpired(LocalDateTime.now());
-//        log.info("Expired URL cleanup completed");
     }
 
     public List<MyLinks> getMyLinks(){
