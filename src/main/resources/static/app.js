@@ -203,3 +203,17 @@ const API_BASE = window.location.hostname === 'localhost' || window.location.hos
     // Expose for refresh after shortening, login, logout, etc.
     window.refreshPlatformStats = loadPlatformStats;
 })();
+
+/* ========================================
+   AUTO-REFRESH — sync stats when user
+   returns to the tab (after clicking a link)
+   ======================================== */
+
+document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') {
+        // Refresh platform stats (total links & clicks)
+        if (typeof refreshPlatformStats === 'function') refreshPlatformStats();
+        // Refresh My Links dashboard (per-link click counts)
+        if (typeof Dashboard !== 'undefined' && Auth.isLoggedIn()) Dashboard.refresh();
+    }
+});
