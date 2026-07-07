@@ -2,7 +2,7 @@
 
 A URL shortener I built with Spring Boot to actually understand how caching, rate limiting, and auth work under the hood instead of just reading about them.
 
-Live: [https://sniplink-jap5.onrender.com](#) 
+Live: [sniplink-jap5.onrender.com](https://sniplink-jap5.onrender.com)
 
 ## Why I built this
 
