@@ -141,25 +141,36 @@ const API_BASE = window.location.hostname === 'localhost' || window.location.hos
     const linksEl = document.getElementById('platform-links');
     const clicksEl = document.getElementById('platform-clicks');
 
+    // Track running animation frame IDs so we can cancel before starting a new one
+    const runningAnimations = new Map();
+
     async function loadPlatformStats() {
         try {
             const res = await fetch(`${API_BASE}/api/stats/platform`);
-            if (!res.ok) throw new Error();
+            if (!res.ok) throw new Error('Stats fetch failed: ' + res.status);
 
             const data = await res.json();
-            const links = data.linksCreated ?? 0;
-            const clicks = data.clickCount ?? 0;
+            const links = (data.linksCreated != null) ? Number(data.linksCreated) : 0;
+            const clicks = (data.clickCount != null) ? Number(data.clickCount) : 0;
 
             animateCount(linksEl, links);
             animateCount(clicksEl, clicks);
-        } catch {
+        } catch (err) {
+            console.error('Platform stats load error:', err);
             linksEl.textContent = '—';
             clicksEl.textContent = '—';
         }
     }
 
-    // Animated count-up
+    // Animated count-up (cancels any previous animation on the same element)
     function animateCount(el, target) {
+        // Cancel any running animation for this element
+        const prevId = runningAnimations.get(el);
+        if (prevId) {
+            cancelAnimationFrame(prevId);
+            runningAnimations.delete(el);
+        }
+
         if (target === 0) { el.textContent = '0'; return; }
 
         const duration = 1200;
@@ -171,16 +182,22 @@ const API_BASE = window.location.hostname === 'localhost' || window.location.hos
             // Ease-out cubic
             const eased = 1 - Math.pow(1 - progress, 3);
             el.textContent = Math.floor(eased * target).toLocaleString();
-            if (progress < 1) requestAnimationFrame(tick);
-            else el.textContent = target.toLocaleString();
+            if (progress < 1) {
+                const id = requestAnimationFrame(tick);
+                runningAnimations.set(el, id);
+            } else {
+                el.textContent = target.toLocaleString();
+                runningAnimations.delete(el);
+            }
         }
 
-        requestAnimationFrame(tick);
+        const id = requestAnimationFrame(tick);
+        runningAnimations.set(el, id);
     }
 
     // Load on page ready
     loadPlatformStats();
 
-    // Expose for refresh after shortening
+    // Expose for refresh after shortening, login, logout, etc.
     window.refreshPlatformStats = loadPlatformStats;
 })();

@@ -185,6 +185,7 @@ const Auth = (function () {
         localStorage.setItem(EMAIL_KEY, email);
         updateUI(email);
         if (typeof Dashboard !== 'undefined') Dashboard.refresh();
+        if (typeof refreshPlatformStats === 'function') refreshPlatformStats();
     }
 
     function clearSession() {
@@ -192,6 +193,7 @@ const Auth = (function () {
         localStorage.removeItem(EMAIL_KEY);
         updateUI(null);
         if (typeof Dashboard !== 'undefined') Dashboard.refresh();
+        if (typeof refreshPlatformStats === 'function') refreshPlatformStats();
     }
 
     function updateUI(email) {
