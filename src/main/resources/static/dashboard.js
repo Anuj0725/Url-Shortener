@@ -73,6 +73,7 @@ const Dashboard = (function () {
         try {
             const res = await fetch(`${API_BASE}/api/stats/${encodeURIComponent(shortCode)}`, {
                 headers: { 'Authorization': `Bearer ${Auth.getToken()}` },
+                cache: 'no-store'
             });
 
             if (!res.ok) {
@@ -125,6 +126,7 @@ const Dashboard = (function () {
         try {
             const res = await fetch(`${API_BASE}/my-links`, {
                 headers: { 'Authorization': `Bearer ${Auth.getToken()}` },
+                cache: 'no-store'
             });
 
             if (!res.ok) {

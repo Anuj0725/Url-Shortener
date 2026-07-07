@@ -146,7 +146,9 @@ const API_BASE = window.location.hostname === 'localhost' || window.location.hos
 
     async function loadPlatformStats() {
         try {
-            const res = await fetch(`${API_BASE}/api/stats/platform`);
+            const res = await fetch(`${API_BASE}/api/stats/platform`, {
+                cache: 'no-store'
+            });
             if (!res.ok) throw new Error('Stats fetch failed: ' + res.status);
 
             const data = await res.json();
