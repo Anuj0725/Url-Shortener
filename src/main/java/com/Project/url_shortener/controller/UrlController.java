@@ -17,9 +17,6 @@ import java.util.List;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Value;
 
-import org.springframework.cache.Cache;
-import org.springframework.cache.CacheManager;
-
 @RestController
 @RequiredArgsConstructor
 @Slf4j
@@ -35,21 +32,19 @@ public class UrlController {
         return new ResponseEntity<>(new UrlResponse(url.getLongUrl(),shortenedLink), HttpStatus.CREATED);
     }
 
-    private final CacheManager cacheManager;
+//    private final CacheManager cacheManager;
 
     @GetMapping("/redirect/{shortCode}")
     public ResponseEntity<?> redirect(@PathVariable String shortCode){
 
-        long start = System.nanoTime();
-        Cache cache = cacheManager.getCache("urls");
-        boolean cacheHit = cache != null && cache.get(shortCode) != null;
+//        long start = System.nanoTime();
+//        Cache cache = cacheManager.getCache("urls");
+//        boolean cacheHit = cache != null && cache.get(shortCode) != null;
+//
+//        long durationMs = (System.nanoTime() - start) / 1_000_000;
+//        log.info("shortCode={} cacheHit={} durationMs={}", shortCode, cacheHit, durationMs);
 
-        Optional<Url> Opt_url = service.getUrl(shortCode);
-
-        long durationMs = (System.nanoTime() - start) / 1_000_000;
-        log.info("shortCode={} cacheHit={} durationMs={}", shortCode, cacheHit, durationMs);
-
-//        Optional<Url> Opt_url= service.getUrl(shortCode);
+        Optional<Url> Opt_url= service.getUrl(shortCode);
 
         if(Opt_url.isPresent()){
             Url url=Opt_url.get();
