@@ -5,6 +5,7 @@ import com.Project.url_shortener.model.Url;
 import com.Project.url_shortener.model.User;
 import com.Project.url_shortener.service.UrlService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,9 +17,12 @@ import java.util.List;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Value;
 
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
+
 @RestController
 @RequiredArgsConstructor
-//@CrossOrigin
+@Slf4j
 public class UrlController {
     private final UrlService service;
     @Value("${app.base-url}")
@@ -31,9 +35,21 @@ public class UrlController {
         return new ResponseEntity<>(new UrlResponse(url.getLongUrl(),shortenedLink), HttpStatus.CREATED);
     }
 
+    private final CacheManager cacheManager;
+
     @GetMapping("/redirect/{shortCode}")
     public ResponseEntity<?> redirect(@PathVariable String shortCode){
-        Optional<Url> Opt_url= service.getUrl(shortCode);
+
+        long start = System.nanoTime();
+        Cache cache = cacheManager.getCache("urls");
+        boolean cacheHit = cache != null && cache.get(shortCode) != null;
+
+        Optional<Url> Opt_url = service.getUrl(shortCode);
+
+        long durationMs = (System.nanoTime() - start) / 1_000_000;
+        log.info("shortCode={} cacheHit={} durationMs={}", shortCode, cacheHit, durationMs);
+
+//        Optional<Url> Opt_url= service.getUrl(shortCode);
 
         if(Opt_url.isPresent()){
             Url url=Opt_url.get();
@@ -45,8 +61,6 @@ public class UrlController {
             service.incrementClicksCount();
             service.incrementClicksCountPerUrl(url.getShortCode());
             String longUrl=url.getLongUrl();
-
-//            return new ResponseEntity<>(new RedirectResponse("You are being redirected to an external site",longUrl),HttpStatus.OK);
 
             HttpHeaders headers = new HttpHeaders();
             headers.setLocation(URI.create(longUrl));
@@ -110,8 +124,4 @@ public class UrlController {
         return new ResponseEntity<>(myLinks,HttpStatus.OK);
     }
 
-//    @GetMapping("/{shortCode}")
-//    public ResponseEntity<?> redirectRoot(@PathVariable String shortCode){
-//        return redirect(shortCode);
-//    }
 }

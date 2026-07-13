@@ -93,7 +93,7 @@ public class UrlService {
 
     private void validateUrl(String url) throws IllegalArgumentException{
         if(url==null || !pattern_url.matcher(url).matches()){
-            throw new IllegalArgumentException("It is an Invalid Url. It must be a http:// or https:// link");
+            throw new IllegalArgumentException("It is an Invalid Url. Please enter a valid Url");
         }
     }
 

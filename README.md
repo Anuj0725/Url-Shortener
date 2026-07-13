@@ -6,7 +6,7 @@ Live: [sniplink-jap5.onrender.com](https://sniplink-jap5.onrender.com)
 
 ## Why I built this
 
-Most tutorials stop at "generate a short code and save it to a database." I wanted to push further and deal with the stuff that actually shows up in system design interviews — cache invalidation, rate limiting under concurrent load, JWT auth, and picking a short-code strategy that doesn't fall apart at scale. This project is where I made (and later found problems with) those decisions.
+I built SnipLink to get hands-on with the stuff that actually shows up in real life applications— caching, rate limiting under load, JWT auth, and short-code strategy at scale.
 
 ## What it does
 
@@ -42,6 +42,30 @@ Being upfront about these since I found them while stress-testing my own reasoni
 - **Rate limiter reads the raw connection IP**, which will misbehave behind a reverse proxy / load balancer (like Render's) since every request looks like it's coming from the same internal IP. Needs to read `X-Forwarded-For` instead once actually deployed behind a proxy.
 
 I'd rather list these myself than have someone find them and assume I don't know they're there.
+
+## Performance
+
+I instrumented the redirect endpoint to measure the actual impact of the Redis cache-aside layer, rather than assuming it helps:
+
+```java
+long start = System.nanoTime();
+boolean cacheHit = cacheManager.getCache("urls").get(shortCode) != null;
+Optional<Url> url = service.getUrl(shortCode); // @Cacheable — DB only runs on miss
+long durationMs = (System.nanoTime() - start) / 1_000_000;
+log.info("shortCode={} cacheHit={} durationMs={}", shortCode, cacheHit, durationMs);
+```
+
+![Redis cache hit vs miss timing logs](./docs/cache-timing.png)
+
+Tested locally (not on the deployed Render instance) to isolate the DB-vs-cache difference from network latency and Render's cold starts. Results, averaged over multiple runs against a warm JVM and local MySQL instance:
+
+| | Latency |
+|---|---|
+| First-ever query (cold connection pool) | ~450ms |
+| Steady-state DB lookup (cache miss) | ~10-20ms |
+| Steady-state Redis lookup (cache hit) | ~6-9ms |
+
+**Takeaway:** on a small local dataset, MySQL is already fast, so the cache only buys ~30-40% in this environment — nowhere near the dramatic numbers you'd see on a first cold-start comparison, and I'm not going to pretend otherwise. The gain would be more meaningful in production, where the DB is a network hop away on TiDB Cloud rather than sitting on localhost, and at a scale where indexed lookups aren't already trivially fast. What this test *does* confirm is that the cache-aside logic is working correctly end-to-end (verified via the `cacheHit` flag, not just faster timings that could be coincidental) and consistently removes the DB round-trip on every repeat hit.
 
 ## Running it locally
 

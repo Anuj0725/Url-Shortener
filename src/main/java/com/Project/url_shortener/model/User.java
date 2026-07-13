@@ -16,7 +16,6 @@ import java.util.Collection;
 import java.util.List;
 
 @Entity
-//@Data //as it also has equals() and hasCode();
 @Setter
 @Getter
 @NoArgsConstructor
